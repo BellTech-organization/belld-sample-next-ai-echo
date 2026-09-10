@@ -1,0 +1,16 @@
+{
+  "name": "belld-next-ai-echo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "build": "next build", "start": "next start --hostname 0.0.0.0" },
+  "dependencies": {
+    "@belld/sdk": "file:belld-sdk-0.1.0.tgz",
+    "next": "15.5.25",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "belld": {
+    "port": 3000,
+    "capabilities": [{ "id": "ai.generate", "required": true, "actions": ["generate"], "scope": { "models": ["text"], "max_tokens_per_call": 100 }, "credential_owner": "workspace", "provider": { "allow": ["openai_compatible"], "fallback": "none" } }]
+  }
+}
