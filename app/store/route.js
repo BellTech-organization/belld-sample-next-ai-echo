@@ -8,19 +8,26 @@ export const runtime = 'nodejs';
 // write → read → delete → read(missing) under the declared `/data/` prefix. The SDK sends
 // `content_base64` inline; the platform's s3_compatible adapter returns `{ key, size_bytes, sha256 }`
 // on write and `{ key, found, size_bytes, sha256, content_base64 }` on read.
+//
+// Every capability call is written out literally as `belld.storage.object.<action>(…)`. BellD's own
+// source scan only recognises that exact member access, so a helper that aliases the capability and
+// indexes it by a variable action reports each declared action as `declared_capability_unused`
+// (warning) — which degrades verification and blocks the release. NFR §6 caps capability requests at
+// 10 per execution per second, so the calls are spaced with an explicit delay instead.
 export async function POST(request) {
   return belld.withRequest(request, async () => {
     try {
-      const storage = belld.storage.object;
-      // NFR §6: at most 10 capability requests per execution/second.
-      const call = async (action, options) => { await delay(110); return storage[action](options); };
       const content = Buffer.from('BellD storage roundtrip');
       const key = '/data/echo';
-      const written = await call('write', { key, bytes: content.length,
+      await delay(110);
+      const written = await belld.storage.object.write({ key, bytes: content.length,
         input: { content_base64: content.toString('base64'), content_type: 'text/plain' } });
-      const read = await call('read', { key, input: {} });
-      const deleted = await call('delete', { key, input: {} });
-      const missing = await call('read', { key, input: {} });
+      await delay(110);
+      const read = await belld.storage.object.read({ key, input: {} });
+      await delay(110);
+      const deleted = await belld.storage.object.delete({ key, input: {} });
+      await delay(110);
+      const missing = await belld.storage.object.read({ key, input: {} });
       const sha256 = createHash('sha256').update(content).digest('hex');
       return Response.json({
         key,
