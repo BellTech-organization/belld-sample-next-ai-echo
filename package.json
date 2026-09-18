@@ -12,6 +12,9 @@
   },
   "belld": {
     "port": 3000,
-    "capabilities": [{ "id": "ai.generate", "required": true, "actions": ["generate"], "scope": { "models": ["text"], "max_tokens_per_call": 100 }, "credential_owner": "workspace", "provider": { "allow": ["openai_compatible"], "fallback": "none" } }]
+    "capabilities": [
+      { "id": "ai.generate", "required": true, "actions": ["generate"], "scope": { "models": ["text"], "max_tokens_per_call": 100 }, "credential_owner": "workspace", "provider": { "allow": ["openai_compatible"], "fallback": "none" } },
+      { "id": "storage.object", "required": true, "actions": ["read", "write", "delete"], "scope": { "prefix": "/data/", "max_object_bytes": 1048576 }, "credential_owner": "workspace", "provider": { "allow": ["s3_compatible"], "fallback": "none" } }
+    ]
   }
 }
